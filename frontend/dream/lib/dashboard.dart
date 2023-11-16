@@ -15,10 +15,8 @@ class _BoardState extends State<Board> {
       appBar: AppBar(
         title: const Text('Dive To You'),
         centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 97, 141, 192),
+        backgroundColor: const Color.fromARGB(255, 97, 141, 192),
       ),
-
-
     );
   }
 }
