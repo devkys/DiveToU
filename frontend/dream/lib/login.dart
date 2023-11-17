@@ -1,4 +1,6 @@
+import 'package:dream/register.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 
@@ -10,6 +12,9 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
+  final Uri _url = Uri.parse('https://flutter.dev');
+  bool _isVisible = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,8 +26,8 @@ class _LoginState extends State<Login> {
                 Container(
                   height: 600,
                   width: MediaQuery.of(context).size.width,
-                  color: Colors.amber,
-                  child: const Padding(
+                  // color: Colors.amber,
+                  child: Padding(
                     padding: EdgeInsets.all(30.0),
                     child: Column(
                       children: [
@@ -54,12 +59,35 @@ class _LoginState extends State<Login> {
                           )),
                         ),
                         TextField(
+                          obscureText: !_isVisible,
+                          decoration: InputDecoration(
+                            // border: const OutlineInputBorder(),
+                            suffixIcon: IconButton(
+                              icon: Icon(_isVisible ? Icons.visibility_off : Icons.visibility),
+                              onPressed: () => setState(() {
+                                _isVisible = !_isVisible;
+                              })
+                            )
+                          ),
                           style: TextStyle(fontSize: 30, color: Colors.red),
+                        ),
+                        SizedBox(
+                          height: 50,
                         ),
                         Align(
                           alignment: Alignment.bottomRight,
-                          child: Text('회원가입하기', style: TextStyle(fontSize: 15))
-                        ),
+                          child: InkWell(
+                            child: Text("회원 가입하기", style: TextStyle()),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) =>  Register()),
+                              );
+                            },
+                              
+                          ),
+                        )
+
                       ],
                   
                     ),
