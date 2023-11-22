@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'login.dart';
 
 
@@ -11,6 +12,14 @@ class Dive extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
+      localizationsDelegates: [
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate
+      ], supportedLocales: [
+        const Locale('ko', 'KO'),
+        const Locale('en', 'US'),
+      ],
       home: Login(),
       debugShowCheckedModeBanner: false,
     );
