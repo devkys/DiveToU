@@ -1,6 +1,9 @@
+import 'package:dream/createpw.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dream/login.dart';
+import 'package:intl/intl.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -10,9 +13,19 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  void initState() {
-    var dateTime = DateTime.now();
-    super.initState();
+
+  TextEditingController datecontroll = TextEditingController();
+
+  // void initState() {
+  //   var dateTime = DateTime.now();
+  //   super.initState();
+
+  // }
+
+  @override
+  void dispose(){
+    datecontroll.dispose();
+    super.dispose();
   }
 
   @override
@@ -35,38 +48,51 @@ class _RegisterState extends State<Register> {
                         SizedBox(height: 30),
                         Text('계정을 생성하세요',
                             style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold)),
+                                fontSize: 30, fontWeight: FontWeight.bold)),
                         SizedBox(height: 50),
                         Align(
                           alignment: Alignment.topLeft,
                           child: Text(
                             '이름',
                             style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.bold),
+                                fontSize: 20, fontWeight: FontWeight.bold),
                           ),
                         ),
-                        TextField(
-                          style: TextStyle(fontSize: 15, color: Colors.red),
+                        TextFormField(
+                          style: TextStyle(fontSize: 18, color: Colors.red),
                         ),
                         SizedBox(
-                          height: 50,
+                          height: 30,
                         ),
                         Align(
                           alignment: Alignment.topLeft,
                           child: Text('Email',
                               style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold)),
+                                  fontSize: 20, fontWeight: FontWeight.bold)),
                         ),
-                        TextField(
-                          style: TextStyle(fontSize: 15, color: Colors.red),
+                        TextFormField(
+                          style: TextStyle(fontSize: 18, color: Colors.red),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: (value) {
+                            if(value!.isEmpty) {
+                              return "이메일을 입력해주세요";
+                            } else if (!EmailValidator.validate(value.toString())) {
+                              return "이메일 형식을 맞춰주세요";
+                            } else {
+                              return null;
+                            }
+                          },
+                        ),
+                        SizedBox(
+                          height: 30
                         ),
                         Align(
                           alignment: Alignment.topLeft,
                           child: Text('생년월일',
                               style: TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold)),
+                                  fontSize: 20, fontWeight: FontWeight.bold)),
                         ),
-                        TextField(onTap: () {
+                        TextFormField(onTap: () {
                           showCupertinoModalPopup(
                               context: context,
                               builder: (context) {
@@ -74,10 +100,6 @@ class _RegisterState extends State<Register> {
                                   height:
                                       MediaQuery.of(context).size.height * 0.4,
                                   child: Column(
-                                    // crossAxisAlignment:
-                                    //     CrossAxisAlignment.center,
-                                    // mainAxisAlignment:
-                                    //     MainAxisAlignment.spaceBetween,
                                     children: [
                                       Row(
                                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,31 +109,47 @@ class _RegisterState extends State<Register> {
                                               onPressed: () {
                                                 Navigator.pop(context);
                                               },
-                                              child: const Text("취소")),
+                                              child: const Text("취소", style: TextStyle(
+                                                color: Colors.red
+                                              ),)),
                                           TextButton(
                                               child: Text('설정'),
                                               onPressed: () {
                                                 Navigator.pop(context);
+                                                datecontroll.text = DateFormat.yMd().format(dateTime);
                                               }),
                                         ],
                                       ),
                                       Expanded(
                                         child: CupertinoDatePicker(
-                                          initialDateTime: new DateTime.now(),
+                                          initialDateTime: dateTime,
                                           mode: CupertinoDatePickerMode.date,
-                                          onDateTimeChanged: (date) {
+                                          onDateTimeChanged: (DateTime newDate) {
                                             setState(() {
-                                              dateTime = date;
+                                              dateTime = newDate;
                                             });
                                           },
                                         ),
+                                        
                                       )
                                     ],
                                   ),
                                 );
                               });
-                        }),
+                        },
+                        controller: datecontroll,
+                        ),
                         SizedBox(height: 30),
+                        ElevatedButton(
+                          child: const Text('다음'),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CreatePw()),
+                              );
+                          } 
+                        ),
                         Align(
                           alignment: Alignment.bottomRight,
                           child: InkWell(
