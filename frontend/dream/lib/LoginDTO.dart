@@ -1,6 +1,6 @@
 
-class User {
+class LoginDTO {
   String email;
   String pw;
-  User(this.email, this.pw);
+  LoginDTO(this.email, this.pw);
 }
