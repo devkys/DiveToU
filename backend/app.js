@@ -6,6 +6,7 @@ const connection = mysql.createConnection(dbconfig);
 
 const app = express();
 
+// express body parser 대신 
 app.use(express.json());
 app.use(express.urlencoded( {extended : false }));
 
@@ -23,7 +24,7 @@ app.get('/', (req, res) => {
 
 //     });
 // });
-app.post('/auth/login', (req, res) => {
+app.post('/auth/signin', (req, res) => {
     var email = req.body.email;
     var pw = req.body.password;
     console.log(email);
@@ -32,11 +33,33 @@ app.post('/auth/login', (req, res) => {
         if(error) throw error;
         if(results.length > 0) {
             console.log('success');
-            res.redirect('')
+            console.log(results)
+            res.send(results)
         } else {
-            console.log('login failed');
+            res.send('로그인 실패');
         }
     })
+
+})
+
+app.post('/auth/singup', (req, res, next) => {
+    var email = req.email;
+    var pw = req.pw;
+    var name = req.name;
+    var res_code = 1;
+    console.log(email);
+    console.log(pw);
+    console.log(name);
+    connection.query('insert into Users (email, pw, name) values (?, ?, ?)', [email, pw, name], function(error, results, fileds) {
+        if(error) throw error;
+        console.lof(results);
+        // if(results > 0) {
+        //     console.log('success');
+        // } else {
+        //     res_code = 0;
+        // }
+        // return res_code;
+    });
 
 })
 
