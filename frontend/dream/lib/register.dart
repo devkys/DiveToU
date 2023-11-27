@@ -1,9 +1,14 @@
+import 'dart:convert';
+import 'dart:io';
 import 'package:dream/createpw.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:dream/login.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -12,18 +17,68 @@ class Register extends StatefulWidget {
   State<Register> createState() => _RegisterState();
 }
 
+class _CreatePWState extends State<CreatePw> {
+  Widget build(BuildContext context) {
+    return Scaffold();
+  }
+}
+
 class _RegisterState extends State<Register> {
-
+  final _formKey = GlobalKey<FormState>();
   TextEditingController datecontroll = TextEditingController();
+  // TextEditingController emailcontroll = TextEditingController();
+  // TextEditingController namecontroll = TextEditingController();
+  late String email;
+  late String name;
+  late String birth;
+  // RegisterDTO registerDTO = RegisterDTO("", "", "", "");
 
-  // void initState() {
-  //   var dateTime = DateTime.now();
-  //   super.initState();
+  Uri uri = Uri.parse("http://localhost:3000/auth/signup");
 
-  // }
+  Future register() async {
+    var res = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      // body: jsonEncode({'email': registerDTO.email, 'password': registerDTO.pw, 'name' : registerDTO.name, 'birth' : registerDTO.birth})
+    );
+  }
+
+  // 이메일 중복 체크
+  Uri emailcheck_uri = Uri.parse("http://127.0.0.1:3000/auth/duplicated_check");
+  Future EmailCheck() async {
+
+    try {
+       var res = await http.post(emailcheck_uri,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({'email': email}));
+
+    if (res == 1) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  CreatePw(email: email, name: name, birth: birth)));
+    }
+    else {
+      Fluttertoast.showToast(msg: '이미 존재하는 이메일',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 10
+      );
+      
+    } 
+
+    } catch(e) {
+      print(e);
+    }
+    
+  }
 
   @override
-  void dispose(){
+  void dispose() {
     datecontroll.dispose();
     super.dispose();
   }
@@ -49,6 +104,7 @@ class _RegisterState extends State<Register> {
                         Text('계정을 생성하세요',
                             style: TextStyle(
                                 fontSize: 30, fontWeight: FontWeight.bold)),
+
                         SizedBox(height: 50),
                         Align(
                           alignment: Alignment.topLeft,
@@ -60,6 +116,16 @@ class _RegisterState extends State<Register> {
                         ),
                         TextFormField(
                           style: TextStyle(fontSize: 18, color: Colors.red),
+                          // controller: TextEditingController(text: registerDTO.name),
+                          autovalidateMode: AutovalidateMode.always,
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return "이름을 입력하세요";
+                            } else {
+                              name = value;
+                            }
+                            return null;
+                          },
                         ),
                         SizedBox(
                           height: 30,
@@ -74,81 +140,96 @@ class _RegisterState extends State<Register> {
                           style: TextStyle(fontSize: 18, color: Colors.red),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
-                            if(value!.isEmpty) {
+                            if (value!.isEmpty) {
                               return "이메일을 입력해주세요";
-                            } else if (!EmailValidator.validate(value.toString())) {
+                            } else if (!EmailValidator.validate(
+                                value.toString())) {
                               return "이메일 형식을 맞춰주세요";
                             } else {
-                              return null;
+                              email = value;
                             }
+                            return null;
                           },
+                          // controller: TextEditingController(text: registerDTO.email),
                         ),
-                        SizedBox(
-                          height: 30
-                        ),
+                        SizedBox(height: 30),
                         Align(
                           alignment: Alignment.topLeft,
                           child: Text('생년월일',
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold)),
                         ),
-                        TextFormField(onTap: () {
-                          showCupertinoModalPopup(
-                              context: context,
-                              builder: (context) {
-                                return Container(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.4,
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: const Text("취소", style: TextStyle(
-                                                color: Colors.red
-                                              ),)),
-                                          TextButton(
-                                              child: Text('설정'),
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                                datecontroll.text = DateFormat.yMd().format(dateTime);
-                                              }),
-                                        ],
-                                      ),
-                                      Expanded(
-                                        child: CupertinoDatePicker(
-                                          initialDateTime: dateTime,
-                                          mode: CupertinoDatePickerMode.date,
-                                          onDateTimeChanged: (DateTime newDate) {
-                                            setState(() {
-                                              dateTime = newDate;
-                                            });
-                                          },
+                        TextFormField(
+                          onTap: () {
+                            showCupertinoModalPopup(
+                                context: context,
+                                builder: (context) {
+                                  return Container(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.4,
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: const Text(
+                                                  "취소",
+                                                  style: TextStyle(
+                                                      color: Colors.red),
+                                                )),
+                                            TextButton(
+                                                child: Text('설정'),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                  datecontroll.text =
+                                                      DateFormat.yMd()
+                                                          .format(dateTime);
+                                                  birth = datecontroll.text;
+                                                }),
+                                          ],
                                         ),
-                                        
-                                      )
-                                    ],
-                                  ),
-                                );
-                              });
-                        },
-                        controller: datecontroll,
+                                        Expanded(
+                                          child: CupertinoDatePicker(
+                                            initialDateTime: dateTime,
+                                            mode: CupertinoDatePickerMode.date,
+                                            onDateTimeChanged:
+                                                (DateTime newDate) {
+                                              setState(() {
+                                                dateTime = newDate;
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                });
+                          },
+                          controller: datecontroll,
                         ),
                         SizedBox(height: 30),
+                        // ElevatedButton(
+                        //   child: const Text('다음'),
+                        //   onPressed: () {
+                        //     Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //         builder: (context) => CreatePw()),
+                        //       );
+                        //   }
+                        // ),
                         ElevatedButton(
                           child: const Text('다음'),
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CreatePw()),
-                              );
-                          } 
+                            EmailCheck();
+                          },
                         ),
                         Align(
                           alignment: Alignment.bottomRight,
