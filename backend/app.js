@@ -42,6 +42,26 @@ app.post('/auth/signin', (req, res) => {
 
 })
 
+// 이메일 중복확인
+app.post('/auth/duplicated_check', (req, res) => {
+    var email = req.body.email;
+    var res_code = false;
+    connection.query('select * from Users where email = ?', [email], function(error, results, fields) {
+        if(error) throw error;
+        if(results.length > 0) {
+            // 이메일 중복
+            res_code = true
+            res.send(res_code)
+
+        } else {
+            // 이메일 중복 아님 
+            // false
+            res.send(res_code);
+
+        }
+    })
+})
+
 app.post('/auth/singup', (req, res, next) => {
     var email = req.email;
     var pw = req.pw;
@@ -52,7 +72,7 @@ app.post('/auth/singup', (req, res, next) => {
     console.log(name);
     connection.query('insert into Users (email, pw, name) values (?, ?, ?)', [email, pw, name], function(error, results, fileds) {
         if(error) throw error;
-        console.lof(results);
+        console.log(results);
         // if(results > 0) {
         //     console.log('success');
         // } else {
