@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:dream/createpw.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,12 +16,6 @@ class Register extends StatefulWidget {
   State<Register> createState() => _RegisterState();
 }
 
-class _CreatePWState extends State<CreatePw> {
-  Widget build(BuildContext context) {
-    return Scaffold();
-  }
-}
-
 class _RegisterState extends State<Register> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController datecontroll = TextEditingController();
@@ -34,6 +27,7 @@ class _RegisterState extends State<Register> {
   // RegisterDTO registerDTO = RegisterDTO("", "", "", "");
 
   Uri uri = Uri.parse("http://localhost:3000/auth/signup");
+  Uri emailcheck_uri = Uri.parse("http://localhost:3000/auth/duplicated_check");
 
   Future register() async {
     var res = await http.post(
@@ -44,37 +38,35 @@ class _RegisterState extends State<Register> {
   }
 
   // 이메일 중복 체크
-  Uri emailcheck_uri = Uri.parse("http://127.0.0.1:3000/auth/duplicated_check");
   Future EmailCheck() async {
-
     try {
-       var res = await http.post(emailcheck_uri,
-        headers: {'Content-Type': 'application/json; charset=UTF-8'},
-        body: jsonEncode({'email': email}));
+      var res = await http.post(emailcheck_uri,
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode({'email': email}));
+      print(res.body);
 
-    if (res == 1) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  CreatePw(email: email, name: name, birth: birth)));
-    }
-    else {
-      Fluttertoast.showToast(msg: '이미 존재하는 이메일',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 10
-      );
-      
-    } 
+      if (res.body.toString() == 'false') {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => CreatePw(email, name, birth)));
 
-    } catch(e) {
+        print(email);
+        print(name);
+        print(birth);
+      } else {
+        Fluttertoast.showToast(
+            msg: '이미 존재하는 이메일',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 10);
+      }
+    } catch (e) {
       print(e);
     }
-    
   }
 
   @override
@@ -123,7 +115,7 @@ class _RegisterState extends State<Register> {
                               return "이름을 입력하세요";
                             } else {
                               name = value;
-                            }
+                            } 
                             return null;
                           },
                         ),
@@ -146,9 +138,8 @@ class _RegisterState extends State<Register> {
                                 value.toString())) {
                               return "이메일 형식을 맞춰주세요";
                             } else {
-                              email = value;
+                              return null;
                             }
-                            return null;
                           },
                           // controller: TextEditingController(text: registerDTO.email),
                         ),
@@ -215,19 +206,10 @@ class _RegisterState extends State<Register> {
                           controller: datecontroll,
                         ),
                         SizedBox(height: 30),
-                        // ElevatedButton(
-                        //   child: const Text('다음'),
-                        //   onPressed: () {
-                        //     Navigator.push(
-                        //       context,
-                        //       MaterialPageRoute(
-                        //         builder: (context) => CreatePw()),
-                        //       );
-                        //   }
-                        // ),
+                       
                         ElevatedButton(
                           child: const Text('다음'),
-                          onPressed: () {
+                          onPressed: () async {
                             EmailCheck();
                           },
                         ),
