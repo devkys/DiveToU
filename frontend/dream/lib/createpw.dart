@@ -1,12 +1,16 @@
+import 'dart:convert';
+
+import 'package:dream/RegisterDTO.dart';
+import 'package:dream/selectFandom.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 class CreatePw extends StatefulWidget {
   final String email;
   final String birth;
   final String name;
-
-  const CreatePw(this.email, this.name, this.birth);
+  // email, pw, name, birth
+  CreatePw(this.email, this.name, this.birth);
 
   @override
   State<CreatePw> createState() => _CreatePwState();
@@ -19,11 +23,29 @@ class _CreatePwState extends State<CreatePw> {
   late String pw;
   late String pw_confirm;
 
-  final TextEditingController _controller = TextEditingController();
-  final TextEditingController _controller2 = TextEditingController();
+  late String email;
+  late String birth;
+  late String name;
+
+  Uri uri = Uri.parse("http://localhost:3000/auth/signup");
+  RegisterDTO registerDTO = RegisterDTO("", "", "", "");
+
+  Future register() async {
+    var res = await http.post (
+      uri,
+      headers: {'Content-Type' : 'application/json; charset=UTF-8'},
+      body: jsonEncode({'email' :registerDTO.email, 'password': registerDTO.pw, 'name': registerDTO.name, 'birth': registerDTO.birth})
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    email = widget.email;
+    birth = widget.birth;
+    name = widget.name;
+    registerDTO.email = email;
+    registerDTO.birth = birth;
+    registerDTO.name = name;
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -76,7 +98,6 @@ class _CreatePwState extends State<CreatePw> {
                       ),
                       TextFormField(
                         maxLength: 12,
-                        controller: _controller,
                         obscureText: !_isVisible,
                         decoration: InputDecoration(
                           hintText: '비밀번호를 입력하세요.',
@@ -112,7 +133,6 @@ class _CreatePwState extends State<CreatePw> {
                                 fontSize: 20, fontWeight: FontWeight.bold)),
                       ),
                       TextFormField(
-                        controller: _controller2,
                         maxLength: 12,
                         obscureText: !_isVisible_c,
                         decoration: InputDecoration(
@@ -130,6 +150,7 @@ class _CreatePwState extends State<CreatePw> {
                           if (!value!.isEmpty) {
                             if (pw == value) {
                               pw_confirm = value;
+                              registerDTO.pw = pw;
                               return null;
                             } else {
                               return "비밀번호 불일치.";
@@ -144,7 +165,11 @@ class _CreatePwState extends State<CreatePw> {
                       ),
                       ElevatedButton(
                         child: const Text('다음'),
-                        onPressed: () {},
+                        onPressed: () {
+                          if(pw == pw_confirm) {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => SelectFandom()));
+                          }
+                        },
                       )
                     ],
                   ),
