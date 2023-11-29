@@ -62,23 +62,27 @@ app.post('/auth/duplicated_check', (req, res) => {
     })
 })
 
-app.post('/auth/singup', (req, res, next) => {
-    var email = req.email;
-    var pw = req.pw;
-    var name = req.name;
-    var res_code = 1;
+app.post('/auth/signup', (req, res) => {
+    var email = req.body.email;
+    var pw = req.body.password;
+    var name = req.body.name;
+    var birth = req.body.birth;
+    var res_code = false;
     console.log(email);
     console.log(pw);
     console.log(name);
-    connection.query('insert into Users (email, pw, name) values (?, ?, ?)', [email, pw, name], function(error, results, fileds) {
+    console.log(birth);
+    connection.query('insert into Users (email, password, username, birth) values (?, ?, ?, ?)', [email, pw, name, birth], function(error, results, fileds) {
         if(error) throw error;
         console.log(results);
-        // if(results > 0) {
-        //     console.log('success');
-        // } else {
-        //     res_code = 0;
-        // }
-        // return res_code;
+        if(results > 0) {
+            res_code = true;
+            res.send(res_code);
+        } else {
+            res.send(res_code);
+            console.log('success');
+        }
+        return res_code;
     });
 
 })
