@@ -5,6 +5,7 @@ import dbconfig from './database.js';
 const connection = mysql.createConnection(dbconfig);
 
 const app = express();
+const router = express.Router();
 
 // express body parser 대신 
 app.use(express.json());
@@ -24,6 +25,8 @@ app.get('/', (req, res) => {
 
 //     });
 // });
+
+// 로그인
 app.post('/auth/signin', (req, res) => {
     var email = req.body.email;
     var pw = req.body.password;
@@ -42,7 +45,32 @@ app.post('/auth/signin', (req, res) => {
 
 })
 
-// 이메일 중복확인
+// 가수 검색
+app.get('/search/artists', (req, res) => {
+
+    // console.log(req.query.name);
+    console.log(req.query.team);
+    var singer = req.query.team;
+    var res_code = false;
+    connection.query('select * from Fandom where singer = ?', [singer], function(error, results, fields) {
+        if(error) throw error;
+        console.log(results);
+        if(results > 0) {
+            // 결과가 있을 때
+            res_code = true;
+            res.send(res_code);
+            console.log(fields);
+        } else {
+            res_code = false;
+        }
+    })
+
+})
+
+// 컬러코드 대문자로 출력
+// select upper(color_code) from Fandom where singer='NCT';
+
+// 이메일 중복확인력
 app.post('/auth/duplicated_check', (req, res) => {
     var email = req.body.email;
     var res_code = false;
@@ -62,6 +90,7 @@ app.post('/auth/duplicated_check', (req, res) => {
     })
 })
 
+// 계정 생성
 app.post('/auth/signup', (req, res) => {
     var email = req.body.email;
     var pw = req.body.password;
