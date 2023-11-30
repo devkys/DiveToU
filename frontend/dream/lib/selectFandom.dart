@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class SelectFandom extends StatefulWidget {
   const SelectFandom({super.key});
@@ -14,8 +15,27 @@ class _SelectFandomState extends State<SelectFandom> {
   void clearText() {
     fieldText.clear();
   }
-  Uri singerSearch_uri = Uri.parse("https://localhost:3000/search/singer");
+ 
+  // Uri singerSearch_uri = Uri.http("http://localhost:3000/search/singer");
 
+  Future singer(String singer) async {
+
+    // 가수 이름 쿼리 파라미터
+    // final queryParams = {
+    //   'team' : singer
+    // };
+
+    final singerSearch_uri = Uri.http('localhost:3000', '/search/artists', {'team' : singer});
+    // http://localhost:3000/search/artists?team=${singer.text}
+    try {
+      var res = await http.get(singerSearch_uri, 
+      headers: {'Content-Type' : 'application/json; charset=UTF-8'},
+      );
+
+    } catch(e) {
+      print(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +60,8 @@ class _SelectFandomState extends State<SelectFandom> {
                             clearText();
                           })),
                   onFieldSubmitted: (value) {
-                    print('enter pressed!!');
+                    singer(value);
+                    print(value);
                   },
                   textInputAction: TextInputAction.search,
                 ),
