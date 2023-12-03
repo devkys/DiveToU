@@ -1,5 +1,18 @@
+import 'dart:convert';
+
+import 'package:dream/Team.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+Future<Team> fetchTeam() async {
+  final response =
+      await http.get(Uri.parse('http://localhost:3000/artists/search/all'));
+  if (response.statusCode == 200) {
+    return Team.fromJson(jsonDecode(response.body) as List<dynamic>);
+  } else {
+    throw Exception('Failed to load Team');
+  }
+}
 
 class SelectFandom extends StatefulWidget {
   const SelectFandom({super.key});
@@ -10,13 +23,20 @@ class SelectFandom extends StatefulWidget {
 
 class _SelectFandomState extends State<SelectFandom>
     with TickerProviderStateMixin {
+  late Future<Team> futureTeam;
+
+  void initState() {
+    super.initState();
+    futureTeam = fetchTeam();
+  }
+
   late final AnimationController _controller = AnimationController(
     duration: const Duration(seconds: 2),
     vsync: this,
   )..repeat(reverse: true);
 
   late final Animation<AlignmentGeometry> _animation = Tween<AlignmentGeometry>(
-    begin: Alignment.bottomLeft,
+    begin: Alignment(-1, -1),
     end: Alignment.center,
   ).animate(CurvedAnimation(parent: _controller, curve: Curves.decelerate));
 
@@ -35,13 +55,24 @@ class _SelectFandomState extends State<SelectFandom>
 
   Future singer(String singer) async {
     final singerSearch_uri =
-        Uri.http('localhost:3000', '/search/artists', {'team': singer});
+        Uri.http('localhost:3000', '/artists/search/name', {'team': singer});
 
     try {
       var res = await http.get(
         singerSearch_uri,
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
       );
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  // 전체 아티스트 조회
+  Uri artist_all = Uri.parse('http://localhost:3000/artists/search/all');
+  Future inquiry() async {
+    try {
+      var res = await http.get(artist_all,
+          headers: {'Content-Type': 'application/json; charset=UTF-8'});
     } catch (e) {
       print(e);
     }
@@ -79,20 +110,28 @@ class _SelectFandomState extends State<SelectFandom>
               Container(
                 height: 650,
                 width: MediaQuery.of(context).size.width,
-                child: Padding(
-                    padding: EdgeInsets.all(150),
-                    child: AlignTransition(
-                        alignment: _animation,
-                        child: Column(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage:
-                                  AssetImage('assets/images/riize.jpeg'),
-                              radius: 40,
-                            ),
-                            Text('riize')
-                          ],
-                        ))),
+                child: FutureBuilder<Team>(
+                  future: futureTeam,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return AlignTransition(
+                          alignment: _animation,
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                backgroundImage:
+                                    AssetImage(snapshot.data!.r_image),
+                                radius: 40,
+                              ),
+                              Text(snapshot.data!.team_name)
+                            ],
+                          ));
+                    } else if(snapshot.hasError) {
+                      return Text('${snapshot.error}');
+                    }
+                    return const CircularProgressIndicator();
+                  },
+                ),
               ),
             ],
           ),
