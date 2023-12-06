@@ -5,39 +5,22 @@ import 'package:dream/Team.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-
-Future<List> fetchTeam() async {
+Future<List<Team>> fetchTeam() async {
   final response =
       await http.get(Uri.parse('http://localhost:3000/artists/search/all'));
 
-  // List<Team> listmodel = <Team>[];
-  List listmodel2=[];
   if (response.statusCode == 200) {
     // final parsed = (jsonDecode(response.body) as List).cast<Map<String, dynamic>>();
     // return parsed.map<Team>((json) => Team.fromJson(json)).toList();
 
-    var list = jsonDecode(response.body) as List;
-    // print(list.runtimeType);
-    // print(list.length);
-    final parsed = (jsonDecode(response.body) as List).cast<Map<String, dynamic>>();
-    print(parsed.runtimeType);
-    // listmodel2.add(parsed.map<Team>((json) => Team.fromJson(json)).toList());
-    print(parsed[0]);
-    // for (var i = 0; i < list.length; i++) {
+    final parsed =
+        (jsonDecode(response.body) as List).cast<Map<String, dynamic>>();
+    // print(parsed.runtimeType);
+    print(parsed.map<Team>((json) => Team.fromJson(json)).toList().runtimeType);
+    // print(parsed[1]);
 
-     
-
-    //   // listmodel.add(Team.fromJson(list[i] as Map<String, dynamic>));
-
-    // }
-
-  // print(jsonDecode(response.body));
-  // print(jsonDecode(response.body)[0]);
-  // print(jsonDecode(response.body).runtimeType);
-  // print(jsonDecode(response.body)[0].runtimeType);
-  return listmodel2;
-  // return Team.fromJson(jsonDecode(response.body)[0] as Map<String, dynamic>);
-
+    return parsed.map<Team>((json) => Team.fromJson(json)).toList();
+    // return Team.fromJson(jsonDecode(response.body)[0] as Map<String, dynamic>);
   } else {
     throw Exception('Failed to load Team');
   }
@@ -52,7 +35,7 @@ class SelectFandom extends StatefulWidget {
 
 class _SelectFandomState extends State<SelectFandom>
     with TickerProviderStateMixin {
-  late Future<List> futureTeam;
+  late Future<List<Team>> futureTeam;
 
   @override
   void initState() {
@@ -140,24 +123,38 @@ class _SelectFandomState extends State<SelectFandom>
               Container(
                 height: 650,
                 width: MediaQuery.of(context).size.width,
-                child: FutureBuilder<List>(
+                child: FutureBuilder<List<Team>>(
                   future: futureTeam,
                   builder: (context, snapshot) {
+                    List<Team> list_team = snapshot.data ?? [];
                     if (snapshot.hasData) {
                       return AlignTransition(
                           alignment: _animation,
                           child: Column(
                             children: [
-                              // for(num=0;)
-                              // CircleAvatar(
-                              //   backgroundImage:
-                              //       AssetImage(snapshot.data!.r_image),
-                              //   radius: 40,
-                              // ),
-                              // Text(snapshot.data!.team_name)
-                            ],
+                              for (var i = 0; i < list_team.length; i++) ...[
+                                InkWell(
+                                  child: CircleAvatar(
+                                    backgroundImage:
+                                        AssetImage(snapshot.data![i].r_image),
+                                    radius: 40,
+                                  ),
+                                  onTap: () {
+                                    // 선택한 그룹명 출력
+                                    print(snapshot.data![i].team_name);
+                                  },
+                                ),
+                                Text(
+                                  snapshot.data![i].team_name,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ]
+                            ], // end of for
                           ));
-                    } else if(snapshot.hasError) {
+                    } else if (snapshot.hasError) {
                       return Text('${snapshot.error}');
                     }
                     return const CircularProgressIndicator();
