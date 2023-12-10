@@ -45,10 +45,9 @@ app.post('/auth/signin', (req, res) => {
 
 })
 
-// 가수 검색
-app.get('/search/artists', (req, res) => {
+// 가수 그룹명(or 이름)으로 검색
+app.get('/artists/search/name', (req, res) => {
 
-    // console.log(req.query.name);
     console.log(req.query.team);
     var singer = req.query.team;
     var res_code = false;
@@ -66,6 +65,28 @@ app.get('/search/artists', (req, res) => {
     })
 
 })
+
+// 가수 전체 조회 
+app.get('/artists/search/all', (req, res) => {
+
+    connection.query('select singer, image_path from Fandom', (error, fields)  => {
+        if(error) throw error;
+        console.log('Team info is: ', fields);
+        res.json(fields);
+
+    })
+
+})
+
+
+// app.get('/auth/login', (req, res) => {
+//     connection.query('select * from Users', (error, rows) => {
+//         if(error) throw error;
+//         console.log('User info is:', rows);
+//         res.send(rows);
+
+//     });
+// });
 
 // 컬러코드 대문자로 출력
 // select upper(color_code) from Fandom where singer='NCT';
@@ -97,10 +118,7 @@ app.post('/auth/signup', (req, res) => {
     var name = req.body.name;
     var birth = req.body.birth;
     var res_code = false;
-    console.log(email);
-    console.log(pw);
-    console.log(name);
-    console.log(birth);
+    
     connection.query('insert into Users (email, password, username, birth) values (?, ?, ?, ?)', [email, pw, name, birth], function(error, results, fileds) {
         if(error) throw error;
         console.log(results);
