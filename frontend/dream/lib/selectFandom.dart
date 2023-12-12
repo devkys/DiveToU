@@ -45,13 +45,13 @@ class _SelectFandomState extends State<SelectFandom>
 
   late final AnimationController _controller = AnimationController(
     duration: const Duration(seconds: 2),
-    vsync: this,
+    vsync: this
   )..repeat(reverse: true);
 
   late final Animation<AlignmentGeometry> _animation = Tween<AlignmentGeometry>(
     begin: Alignment(-1, -1),
     end: Alignment.center,
-  ).animate(CurvedAnimation(parent: _controller, curve: Curves.decelerate));
+  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubicEmphasized));
 
   @override
   void dispose() {

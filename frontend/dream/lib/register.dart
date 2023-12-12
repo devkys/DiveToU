@@ -18,25 +18,15 @@ class Register extends StatefulWidget {
 
 class _RegisterState extends State<Register> {
   final _formKey = GlobalKey<FormState>();
+
   TextEditingController datecontroll = TextEditingController();
-  // TextEditingController emailcontroll = TextEditingController();
-  // TextEditingController namecontroll = TextEditingController();
+
   late String email;
   late String name;
   late String birth;
-  // RegisterDTO registerDTO = RegisterDTO("", "", "", "");
 
-  Uri uri = Uri.parse("http://localhost:3000/auth/signup");
   Uri emailcheck_uri = Uri.parse("http://localhost:3000/auth/duplicated_check");
-
-  Future register() async {
-    var res = await http.post(
-      uri,
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      // body: jsonEncode({'email': registerDTO.email, 'password': registerDTO.pw, 'name' : registerDTO.name, 'birth' : registerDTO.birth})
-    );
-  }
-
+  
   // 이메일 중복 체크
   Future EmailCheck() async {
     try {
@@ -50,10 +40,6 @@ class _RegisterState extends State<Register> {
             context,
             MaterialPageRoute(
                 builder: (context) => CreatePw(email, name, birth)));
-
-        print(email);
-        print(name);
-        print(birth);
       } else {
         Fluttertoast.showToast(
             msg: '이미 존재하는 이메일',
@@ -82,6 +68,7 @@ class _RegisterState extends State<Register> {
       body: Center(
         child: SingleChildScrollView(
           child: Form(
+            key: _formKey,
             child: Column(
               children: [
                 Container(
@@ -107,7 +94,7 @@ class _RegisterState extends State<Register> {
                           ),
                         ),
                         TextFormField(
-                          style: TextStyle(fontSize: 18, color: Colors.red),
+                          style: TextStyle(fontSize: 18),
                           // controller: TextEditingController(text: registerDTO.name),
                           autovalidateMode: AutovalidateMode.always,
                           validator: (value) {
@@ -129,7 +116,7 @@ class _RegisterState extends State<Register> {
                                   fontSize: 20, fontWeight: FontWeight.bold)),
                         ),
                         TextFormField(
-                          style: TextStyle(fontSize: 18, color: Colors.red),
+                          style: TextStyle(fontSize: 18),
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           validator: (value) {
                             if (value!.isEmpty) {
@@ -138,8 +125,9 @@ class _RegisterState extends State<Register> {
                                 value.toString())) {
                               return "이메일 형식을 맞춰주세요";
                             } else {
-                              return null;
+                              email=value;
                             }
+                            return null;
                           },
                           // controller: TextEditingController(text: registerDTO.email),
                         ),
@@ -183,6 +171,7 @@ class _RegisterState extends State<Register> {
                                                       DateFormat.yMd()
                                                           .format(dateTime);
                                                   birth = datecontroll.text;
+                                                  print("birth : " + birth);
                                                 }),
                                           ],
                                         ),

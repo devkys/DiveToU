@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dream/RegisterDTO.dart';
 import 'package:dream/selectFandom.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 
 class CreatePw extends StatefulWidget {
@@ -31,11 +32,24 @@ class _CreatePwState extends State<CreatePw> {
   RegisterDTO registerDTO = RegisterDTO("", "", "", "");
 
   Future register() async {
-    var res = await http.post (
-      uri,
-      headers: {'Content-Type' : 'application/json; charset=UTF-8'},
-      body: jsonEncode({'email' :registerDTO.email, 'password': registerDTO.pw, 'name': registerDTO.name, 'birth': registerDTO.birth})
-    );
+    try {
+      var res = await http.post(uri,
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
+          body: jsonEncode({
+            'email': registerDTO.email,
+            'password': registerDTO.pw,
+            'name': registerDTO.name,
+            'birth': registerDTO.birth
+          }));
+      print(res.body);
+
+      if (res.body.toString() == 'false') {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => SelectFandom()));
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -43,9 +57,11 @@ class _CreatePwState extends State<CreatePw> {
     email = widget.email;
     birth = widget.birth;
     name = widget.name;
+
     registerDTO.email = email;
     registerDTO.birth = birth;
     registerDTO.name = name;
+    
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -166,8 +182,17 @@ class _CreatePwState extends State<CreatePw> {
                       ElevatedButton(
                         child: const Text('다음'),
                         onPressed: () {
-                          if(pw == pw_confirm) {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => SelectFandom()));
+                          if (pw == pw_confirm) {
+                            register();
+                          } else {
+                            Fluttertoast.showToast(
+                                msg: '비밀번호를 확인하세요.',
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 10);
                           }
                         },
                       )
