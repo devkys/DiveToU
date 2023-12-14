@@ -1,8 +1,11 @@
+
+
 import 'package:dream/createpw.dart';
 import 'package:dream/selectFandom.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'login.dart';
+
 
 
 void main() => runApp(const Dive());
@@ -22,8 +25,7 @@ class Dive extends StatelessWidget {
         const Locale('ko', 'KO'),
         const Locale('en', 'US'),
       ],
-      home: Login(),
-      // home: SelectFandom(),
+      home: SelectFandom(),
       debugShowCheckedModeBanner: false,
     );
   }
