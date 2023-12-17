@@ -51,7 +51,7 @@ app.get('/artists/search/name', (req, res) => {
     console.log(req.query.team);
     var singer = req.query.team;
     var res_code = false;
-    connection.query('select * from Fandom where singer = ?', [singer], function(error, results, fields) {
+    connection.query('select * from Artists where singer = ?', [singer], function(error, results, fields) {
         if(error) throw error;
         console.log(results);
         if(results > 0) {
@@ -69,7 +69,7 @@ app.get('/artists/search/name', (req, res) => {
 // 가수 전체 조회 
 app.get('/artists/search/all', (req, res) => {
 
-    connection.query('select singer, image_path from Fandom', (error, fields)  => {
+    connection.query('select singer, image_path from Artists', (error, fields)  => {
         if(error) throw error;
         console.log('Team info is: ', fields);
         res.json(fields);
