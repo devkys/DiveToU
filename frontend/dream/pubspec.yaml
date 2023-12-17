@@ -30,8 +30,10 @@ environment:
 dependencies:
   google_fonts: ^6.1.0
   http: ^1.1.0
-  url_launcher: ^6.2.1
+  # url_launcher: ^6.2.1
   bottom_picker: ^2.3.2
+  flutter_secure_storage : ^5.0.2 
+
 
   flutter:
     sdk: flutter
