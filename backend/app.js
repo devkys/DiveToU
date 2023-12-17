@@ -28,8 +28,8 @@ app.get('/', (req, res) => {
 
 // 로그인
 app.post('/auth/signin', (req, res) => {
-    var email = req.body.email;
-    var pw = req.body.password;
+    // var email = req.body.email;
+    // var pw = req.body.password;
     console.log(email);
     console.log(pw);
     connection.query('select * from Users where email = ? and password = ?', [email, pw], function(error, results, fields) {
@@ -75,6 +75,27 @@ app.get('/artists/search/all', (req, res) => {
         res.json(fields);
 
     })
+
+})
+
+// 좋아하는 아티스트 선택 하는 api
+app.post('/artists/choose', (req, res) => {
+    var user_email = req.body.user_email;
+    var f_artist = req.body.f_artist;
+    var res_code = false;
+    connection.query('insert into Fandom (user_email, f_artist) values (? , (select id from Artists where singer = ?))', [user_email, f_artist], function(error, results, fields) {
+        if(error) throw error;
+        if(results > 0) {
+            res_code = true;
+            res.send(res_code);
+        }
+        else {
+            res.send(res_code);
+        }
+        return res_code;
+
+    });
+
 
 })
 
