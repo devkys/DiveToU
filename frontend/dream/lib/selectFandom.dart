@@ -171,16 +171,3 @@ class _SelectFandomState extends State<SelectFandom>
     );
   }
 }
-
-// class MyCustomPainter extends CustomPainter {
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     Paint paint = Paint();
-//   }
-
-//   @override
-//   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-//     // TODO: implement shouldRepaint
-//     throw UnimplementedError();
-//   }
-// }
