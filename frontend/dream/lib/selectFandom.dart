@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:dream/Team.dart';
+import 'package:dream/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -24,6 +24,16 @@ Future<List<Team>> fetchTeam() async {
   } else {
     throw Exception('Failed to load Team');
   }
+}
+
+Future choose_artists() async {
+  final Uri uri = Uri.parse('http://localhost:3000/artists/choose');
+
+  var res = await http.post(
+    uri,
+    headers: {'Content-type' : 'application/json; charset=UTF-8'},
+    body: jsonEncode({})
+  );
 }
 
 class SelectFandom extends StatefulWidget {
@@ -142,7 +152,29 @@ class _SelectFandomState extends State<SelectFandom>
                                   ),
                                   onTap: () {
                                     // 선택한 그룹명 출력
-                                    print(list_team[i].team_name);
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) =>
+                                            AlertDialog(
+                                              title:
+                                                  Text(list_team[i].team_name),
+                                              content: Text('당신의 아티스트는 ' +
+                                                  list_team[i].team_name +
+                                                  ' 확실하신가요?'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context, 'Cancel'),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () =>
+                                                     Navigator.push(context, MaterialPageRoute(builder: (context) => Board())),
+                                                  child: const Text('OK'),
+                                                ),
+                                              ],
+                                            ));
                                   },
                                 ),
                                 Text(
