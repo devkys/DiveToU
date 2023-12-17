@@ -43,15 +43,15 @@ class _SelectFandomState extends State<SelectFandom>
     futureTeam = fetchTeam();
   }
 
-  late final AnimationController _controller = AnimationController(
-    duration: const Duration(seconds: 2),
-    vsync: this
-  )..repeat(reverse: true);
+  late final AnimationController _controller =
+      AnimationController(duration: const Duration(seconds: 2), vsync: this)
+        ..repeat(reverse: true);
 
   late final Animation<AlignmentGeometry> _animation = Tween<AlignmentGeometry>(
     begin: Alignment(-1, -1),
     end: Alignment.center,
-  ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubicEmphasized));
+  ).animate(CurvedAnimation(
+      parent: _controller, curve: Curves.easeInOutCubicEmphasized));
 
   @override
   void dispose() {
@@ -128,20 +128,21 @@ class _SelectFandomState extends State<SelectFandom>
                   builder: (context, snapshot) {
                     List<Team> list_team = snapshot.data ?? [];
                     if (snapshot.hasData) {
-                      return AlignTransition(
-                          alignment: _animation,
-                          child: Column(
-                            children: [
-                              for (var i = 0; i < list_team.length; i++) ...[
+                      return GridView.count(
+                        crossAxisCount: 3,
+                        children: [
+                          for (var i = 0; i < list_team.length; i++) ...[
+                            Column(
+                              children: [
                                 InkWell(
                                   child: CircleAvatar(
                                     backgroundImage:
-                                        AssetImage(snapshot.data![i].r_image),
-                                    radius: 40,
+                                        AssetImage(list_team[i].r_image),
+                                    radius: 45,
                                   ),
                                   onTap: () {
                                     // 선택한 그룹명 출력
-                                    print(snapshot.data![i].team_name);
+                                    print(list_team[i].team_name);
                                   },
                                 ),
                                 Text(
@@ -151,9 +152,11 @@ class _SelectFandomState extends State<SelectFandom>
                                       fontSize: 18.0,
                                       fontWeight: FontWeight.bold),
                                 )
-                              ]
-                            ], // end of for
-                          ));
+                              ],
+                            ),
+                          ]
+                        ], // end of for
+                      );
                     } else if (snapshot.hasError) {
                       return Text('${snapshot.error}');
                     }
