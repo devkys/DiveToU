@@ -28,8 +28,8 @@ app.get('/', (req, res) => {
 
 // 로그인
 app.post('/auth/signin', (req, res) => {
-    // var email = req.body.email;
-    // var pw = req.body.password;
+    var email = req.body.email;
+    var pw = req.body.password;
     console.log(email);
     console.log(pw);
     connection.query('select * from Users where email = ? and password = ?', [email, pw], function(error, results, fields) {
@@ -51,6 +51,7 @@ app.get('/artists/search/name', (req, res) => {
     console.log(req.query.team);
     var singer = req.query.team;
     var res_code = false;
+    
     connection.query('select * from Artists where singer = ?', [singer], function(error, results, fields) {
         if(error) throw error;
         console.log(results);
@@ -85,6 +86,8 @@ app.post('/artists/choose', (req, res) => {
     var res_code = false;
     connection.query('insert into Fandom (user_email, f_artist) values (? , (select id from Artists where singer = ?))', [user_email, f_artist], function(error, results, fields) {
         if(error) throw error;
+        console.log("results: " + results);
+        console.log("fields: " + fields);
         if(results > 0) {
             res_code = true;
             res.send(res_code);
@@ -153,6 +156,29 @@ app.post('/auth/signup', (req, res) => {
         return res_code;
     });
 
+})
+
+
+// user image 정보 가져오기
+app.get('/api/users/avatar', (req, res) => {
+    
+    var email = req.body.email;
+    connection.query('select image from Users where email = ?', [email], function(error, results, fileds) {
+        if(error) throw error;
+        console.log('user image info: ', fileds);
+        res.json(fileds);
+    })
+});
+
+// 사용자 프로필 사진 업데이트
+app.post('/api/user/upd', (req, res) => {
+    
+    var email = req.body.user_email;
+    var image_path = req.body.img_path;
+
+    connection.query('update set Users image= ? where email = ?', [email, image_path], function(error, results, fields) {
+        if(error) throw error;
+    })
 })
 
 app.listen(app.get('port'), () => {
