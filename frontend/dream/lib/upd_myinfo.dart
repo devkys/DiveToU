@@ -1,5 +1,6 @@
-import 'dart:io';
+import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
@@ -17,6 +18,8 @@ class _MyInfoState extends State<MyInfo> {
   static final storage = new FlutterSecureStorage();
 
   late String? userInfo;
+
+  bool isChecked = false;
 
   @override
   void initState() {
@@ -44,19 +47,31 @@ class _MyInfoState extends State<MyInfo> {
     if (pickedFile != null) {
       setState(() {
         _image = XFile(pickedFile.path);
-        print(_image);
       });
     }
   }
 
   Future UserAvatar() async {
-    final user_image_uri =
+    Uri user_image_uri =
         Uri.http('localhost:3000', 'api/users/avatar', {'email': userInfo});
     try {
       var res = await http.get(
         user_image_uri,
         headers: {'Content-Type': 'application/json; charset-UTF-8'},
       );
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future update(String user_name, String image_path) async {
+    final upd_userInfo_uri = Uri.parse('http://localhost:3000/api/user/upd');
+
+    try {
+      var res = await http.post(upd_userInfo_uri,
+          headers: {'Content-Tyep': 'application/json; charset=UTF-8'},
+          body: jsonEncode(
+              {'user_name': user_name, 'img_path': image_path})); //post
     } catch (e) {
       print(e);
     }
@@ -131,7 +146,27 @@ class _MyInfoState extends State<MyInfo> {
                 maxLines: 5,
                 keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(hintText: "자기소개를 입력하세요."),
-              )
+              ),
+              SizedBox(height: 40),
+              Align(
+                alignment: Alignment.topLeft,
+                // child: Text('내 계정 비공개하기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                  Text('내 계정 비공개 하기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  CupertinoSwitch(
+                    value: isChecked,
+                    onChanged: (value) {
+                      setState(() {
+                        isChecked = !isChecked;
+                      });
+                    },
+                    activeColor: CupertinoColors.activeBlue,
+                  )
+                ]),
+              ),
+
               // Align(
               //     alignment: Alignment.topLeft,
               //     child: Text('비밀번호',
