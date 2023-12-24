@@ -43,7 +43,6 @@ app.post('/auth/signin', (req, res) => {
             res.send(res_code); 
             console.log('do not exist info');
         }
-       
     })
 
 })
