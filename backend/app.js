@@ -30,17 +30,20 @@ app.get('/', (req, res) => {
 app.post('/auth/signin', (req, res) => {
     var email = req.body.email;
     var pw = req.body.password;
-    console.log(email);
-    console.log(pw);
+    var res_code = false;
+
     connection.query('select * from Users where email = ? and password = ?', [email, pw], function(error, results, fields) {
         if(error) throw error;
         if(results.length > 0) {
-            console.log('success');
-            console.log(results)
-            res.send(results)
+            console.log(results);
+            res_code = true;
+            res.send(res_code);
+
         } else {
-            res.send('로그인 실패');
+            res.send(res_code); 
+            console.log('do not exist info');
         }
+       
     })
 
 })
@@ -55,7 +58,7 @@ app.get('/artists/search/name', (req, res) => {
     connection.query('select * from Artists where singer = ?', [singer], function(error, results, fields) {
         if(error) throw error;
         console.log(results);
-        if(results > 0) {
+        if(results.length > 0) {
             // 결과가 있을 때
             res_code = true;
             res.send(res_code);
