@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:dream/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -17,30 +18,35 @@ class MyInfo extends StatefulWidget {
 class _MyInfoState extends State<MyInfo> {
   static final storage = new FlutterSecureStorage();
 
-  late String? userInfo;
+  late String userInfo = "";
 
   bool isChecked = false;
+  String postId = Uuid().v4();
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _asyncMethod();
-    });
-  }
-
-  _asyncMethod() async {
-    userInfo = await storage.read(key: "user_info");
-
-    // if (userInfo == null) {
-    //   Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
-    // }
-  }
 
   final ImagePicker picker = ImagePicker();
   XFile? _image;
 
-  var uuid = Uuid();
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     _asyncMethod();
+  //   });
+  //   print(userInfo);
+  //   UserAvatar();
+  // }
+
+  _asyncMethod() async {
+
+    // ! is can not be null. (null check)
+    userInfo = (await storage.read(key: "user_info"))!;
+
+    if (userInfo == null) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
+    }
+  }
+
 
   Future getImage(ImageSource imageSource) async {
     final XFile? pickedFile = await picker.pickImage(source: imageSource);
@@ -51,6 +57,7 @@ class _MyInfoState extends State<MyInfo> {
     }
   }
 
+
   Future UserAvatar() async {
     Uri user_image_uri =
         Uri.http('localhost:3000', 'api/users/avatar', {'email': userInfo});
@@ -59,19 +66,22 @@ class _MyInfoState extends State<MyInfo> {
         user_image_uri,
         headers: {'Content-Type': 'application/json; charset-UTF-8'},
       );
+      // if(res.statusCode == 200) {
+      //   print(res);
+      // }
     } catch (e) {
       print(e);
     }
   }
 
-  Future update(String user_name, String image_path) async {
+  Future update(String user_email, String image_path) async {
     final upd_userInfo_uri = Uri.parse('http://localhost:3000/api/user/upd');
 
     try {
       var res = await http.post(upd_userInfo_uri,
           headers: {'Content-Tyep': 'application/json; charset=UTF-8'},
           body: jsonEncode(
-              {'user_name': user_name, 'img_path': image_path})); //post
+              {'user_email': user_email, 'img_path': image_path})); //post
     } catch (e) {
       print(e);
     }
@@ -93,7 +103,11 @@ class _MyInfoState extends State<MyInfo> {
                     TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
               ),
               child: Text('저장하기'),
-              onPressed: () {})
+              onPressed: () {
+                // ! is can not be null.
+                update(userInfo, _image!.path);
+
+              })
         ],
       ),
       body: SingleChildScrollView(
