@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dream/login.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,7 +26,7 @@ class _MyInfoState extends State<MyInfo> {
 
 
   final ImagePicker picker = ImagePicker();
-  XFile? _image;
+  File? _image;
 
   // @override
   // void initState() {
@@ -52,8 +53,10 @@ class _MyInfoState extends State<MyInfo> {
     final XFile? pickedFile = await picker.pickImage(source: imageSource);
     if (pickedFile != null) {
       setState(() {
-        _image = XFile(pickedFile.path);
+        _image = File(pickedFile.path);
       });
+      print(_image);
+      print(_image!.path);
     }
   }
 
@@ -118,7 +121,7 @@ class _MyInfoState extends State<MyInfo> {
               SizedBox(
                 height: 40,
               ),
-              SizedBox(
+              Container(
                 height: 100.0,
                 width: 100.0,
                 child: DecoratedBox(
@@ -128,16 +131,18 @@ class _MyInfoState extends State<MyInfo> {
                         onPressed: () {
                           getImage(ImageSource.gallery);
                         }),
-                    decoration: _image != null
-                        ? BoxDecoration(
+                    decoration: 
+                      _image != null ?
+                         BoxDecoration(
                             borderRadius: BorderRadius.circular(18.0),
                             image: DecorationImage(
-                                // image: FileImage(_image!.path as File),
-                                image: AssetImage(_image!.path),
-                                fit: BoxFit.cover))
+                              image: FileImage(_image!),
+                                fit: BoxFit.fill)
+                                )
                         : BoxDecoration(
                             borderRadius: BorderRadius.circular(18.0),
-                            color: Colors.grey)),
+                            color: Colors.grey)
+                            ),
               ),
               SizedBox(height: 50),
               Align(
