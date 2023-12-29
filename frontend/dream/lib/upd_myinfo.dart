@@ -5,6 +5,7 @@ import 'package:dream/login.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
@@ -28,15 +29,15 @@ class _MyInfoState extends State<MyInfo> {
   final ImagePicker picker = ImagePicker();
   File? _image;
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     _asyncMethod();
-  //   });
-  //   print(userInfo);
-  //   UserAvatar();
-  // }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _asyncMethod();
+    });
+    print(userInfo);
+    // UserAvatar();
+  }
 
   _asyncMethod() async {
 
@@ -76,17 +77,50 @@ class _MyInfoState extends State<MyInfo> {
       print(e);
     }
   }
+  Future update(String image_path) async {
+    final upd_userInfo_uri = Uri.parse('http://192.168.0.11:3000/api/user/upd');
 
-  Future update(String user_email, String image_path) async {
-    final upd_userInfo_uri = Uri.parse('http://localhost:3000/api/user/upd');
+  // 이미지 파일 키
+  final String imageFieldKey = "image";
+   // 이미지 파일을 읽어옴
+    File imageFile = File(image_path);
 
+    // 파일을 서버에 전송하기 위해 MultipartFile 객체 생성
+    http.MultipartFile imageMultipartFile = await http.MultipartFile.fromPath(
+      imageFieldKey,
+      imageFile.path,
+    );
+
+    // 추가할 쿼리 스트링 파라미터
+  final Map<String, String> queryParams = {
+    'user_email' : userInfo
+  };
+
+    // 서버로 전송할 데이터 설정
+         var request = http.MultipartRequest('POST', upd_userInfo_uri)
+      ..files.add(imageMultipartFile)
+      ..fields.addAll(queryParams);
+   
     try {
-      var res = await http.post(upd_userInfo_uri,
-          headers: {'Content-Tyep': 'application/json; charset=UTF-8'},
-          body: jsonEncode(
-              {'user_email': user_email, 'img_path': image_path})); //post
-    } catch (e) {
-      print(e);
+      // 요청 수행
+      var response = await request.send();
+
+      // 응답 확인
+      if (response.statusCode == 200) {
+        print('Image uploaded successfully');
+         Fluttertoast.showToast(
+            msg: '정상적으로 업데이트 성공됨.',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            fontSize: 10,
+            textColor: Colors.white,
+            backgroundColor: Colors.redAccent);
+      } else {
+        print('Failed to upload image. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error uploading image: $error');
     }
   }
 
@@ -108,7 +142,9 @@ class _MyInfoState extends State<MyInfo> {
               child: Text('저장하기'),
               onPressed: () {
                 // ! is can not be null.
-                update(userInfo, _image!.path);
+                // update(userInfo, _image!.path);
+                update(_image!.path);
+                print(userInfo);
 
               })
         ],
@@ -137,7 +173,7 @@ class _MyInfoState extends State<MyInfo> {
                             borderRadius: BorderRadius.circular(18.0),
                             image: DecorationImage(
                               image: FileImage(_image!),
-                                fit: BoxFit.fill)
+                                fit: BoxFit.cover)
                                 )
                         : BoxDecoration(
                             borderRadius: BorderRadius.circular(18.0),
