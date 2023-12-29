@@ -25,7 +25,6 @@ class _MyInfoState extends State<MyInfo> {
   bool isChecked = false;
   String postId = Uuid().v4();
 
-
   final ImagePicker picker = ImagePicker();
   File? _image;
 
@@ -40,7 +39,6 @@ class _MyInfoState extends State<MyInfo> {
   }
 
   _asyncMethod() async {
-
     // ! is can not be null. (null check)
     userInfo = (await storage.read(key: "user_info"))!;
 
@@ -48,7 +46,6 @@ class _MyInfoState extends State<MyInfo> {
       Navigator.push(context, MaterialPageRoute(builder: (context) => Login()));
     }
   }
-
 
   Future getImage(ImageSource imageSource) async {
     final XFile? pickedFile = await picker.pickImage(source: imageSource);
@@ -60,7 +57,6 @@ class _MyInfoState extends State<MyInfo> {
       print(_image!.path);
     }
   }
-
 
   Future UserAvatar() async {
     Uri user_image_uri =
@@ -77,12 +73,13 @@ class _MyInfoState extends State<MyInfo> {
       print(e);
     }
   }
+
   Future update(String image_path) async {
     final upd_userInfo_uri = Uri.parse('http://192.168.0.11:3000/api/user/upd');
 
-  // 이미지 파일 키
-  final String imageFieldKey = "image";
-   // 이미지 파일을 읽어옴
+    // 이미지 파일 키
+    final String imageFieldKey = "image";
+    // 이미지 파일을 읽어옴
     File imageFile = File(image_path);
 
     // 파일을 서버에 전송하기 위해 MultipartFile 객체 생성
@@ -92,15 +89,13 @@ class _MyInfoState extends State<MyInfo> {
     );
 
     // 추가할 쿼리 스트링 파라미터
-  final Map<String, String> queryParams = {
-    'user_email' : userInfo
-  };
+    final Map<String, String> queryParams = {'user_email': userInfo};
 
     // 서버로 전송할 데이터 설정
-         var request = http.MultipartRequest('POST', upd_userInfo_uri)
+    var request = http.MultipartRequest('POST', upd_userInfo_uri)
       ..files.add(imageMultipartFile)
       ..fields.addAll(queryParams);
-   
+
     try {
       // 요청 수행
       var response = await request.send();
@@ -108,8 +103,8 @@ class _MyInfoState extends State<MyInfo> {
       // 응답 확인
       if (response.statusCode == 200) {
         print('Image uploaded successfully');
-         Fluttertoast.showToast(
-            msg: '정상적으로 업데이트 성공됨.',
+        Fluttertoast.showToast(
+            msg: userInfo,
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
@@ -145,7 +140,6 @@ class _MyInfoState extends State<MyInfo> {
                 // update(userInfo, _image!.path);
                 update(_image!.path);
                 print(userInfo);
-
               })
         ],
       ),
@@ -167,18 +161,14 @@ class _MyInfoState extends State<MyInfo> {
                         onPressed: () {
                           getImage(ImageSource.gallery);
                         }),
-                    decoration: 
-                      _image != null ?
-                         BoxDecoration(
+                    decoration: _image != null
+                        ? BoxDecoration(
                             borderRadius: BorderRadius.circular(18.0),
                             image: DecorationImage(
-                              image: FileImage(_image!),
-                                fit: BoxFit.cover)
-                                )
+                                image: FileImage(_image!), fit: BoxFit.cover))
                         : BoxDecoration(
                             borderRadius: BorderRadius.circular(18.0),
-                            color: Colors.grey)
-                            ),
+                            color: Colors.grey)),
               ),
               SizedBox(height: 50),
               Align(
@@ -207,19 +197,21 @@ class _MyInfoState extends State<MyInfo> {
                 alignment: Alignment.topLeft,
                 // child: Text('내 계정 비공개하기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                  Text('내 계정 비공개 하기', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  CupertinoSwitch(
-                    value: isChecked,
-                    onChanged: (value) {
-                      setState(() {
-                        isChecked = !isChecked;
-                      });
-                    },
-                    activeColor: CupertinoColors.activeBlue,
-                  )
-                ]),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('내 계정 비공개 하기',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
+                      CupertinoSwitch(
+                        value: isChecked,
+                        onChanged: (value) {
+                          setState(() {
+                            isChecked = !isChecked;
+                          });
+                        },
+                        activeColor: CupertinoColors.activeBlue,
+                      )
+                    ]),
               ),
 
               // Align(
