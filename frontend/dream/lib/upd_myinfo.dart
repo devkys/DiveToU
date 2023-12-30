@@ -75,7 +75,8 @@ class _MyInfoState extends State<MyInfo> {
   }
 
   Future update(String image_path) async {
-    final upd_userInfo_uri = Uri.parse('http://192.168.0.11:3000/api/user/upd');
+    // final upd_userInfo_uri = Uri.parse('http://192.168.0.11:3000/api/user/upd');
+    final upd_userInfo_uri = Uri.http('192.168.0.11:3000','api/user/upd', {'user_email' : userInfo});
 
     // 이미지 파일 키
     final String imageFieldKey = "image";
@@ -88,13 +89,10 @@ class _MyInfoState extends State<MyInfo> {
       imageFile.path,
     );
 
-    // 추가할 쿼리 스트링 파라미터
-    final Map<String, String> queryParams = {'user_email': userInfo};
 
     // 서버로 전송할 데이터 설정
     var request = http.MultipartRequest('POST', upd_userInfo_uri)
-      ..files.add(imageMultipartFile)
-      ..fields.addAll(queryParams);
+      ..files.add(imageMultipartFile);
 
     try {
       // 요청 수행
