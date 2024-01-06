@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:dream/User.dart';
 import 'package:dream/UserProvider.dart';
 import 'package:dream/dashboard.dart';
+import 'package:dream/dashboard2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -46,7 +47,7 @@ class Dive extends StatelessWidget {
          if (snapshot.data != null) {
           print(snapshot.data!.email);
         // 사용자가 로그인한 경우, 사용자 정보를 Board 위젯으로 전달합니다.
-        return Board(user: snapshot.data!); // 'snapshot.data'가 사용자 정보라고 가정합니다.
+        return Board2(user: snapshot.data!); // 'snapshot.data'가 사용자 정보라고 가정합니다.
       } else {
         // 사용자가 로그인하지 않은 경우, Login 위젯을 표시합니다.
         return Login();
