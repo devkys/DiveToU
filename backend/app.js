@@ -36,23 +36,16 @@ app.get("/", (req, res) => {
 
 // 로그인
 app.post("/auth/signin", (req, res) => {
-  var email = req.body.email;
-  var pw = req.body.password;
-  var res_code = false;
+  let email = req.body.email;
+  let pw = req.body.password;
 
   connection.query(
     "select * from Users where email = ? and password = ?",
     [email, pw],
-    function (error, results, fields) {
+    function (error, results) {
       if (error) throw error;
-      if (results.length > 0) {
-        console.log(results);
-        res_code = true;
-        res.send(res_code);
-      } else {
-        res.send(res_code);
-        console.log("do not exist info");
-      }
+      results.length > 0 ? res.json(results[0]) : res.sendStatus(400);
+      console.log(results[0]);
     }
   );
 });
@@ -168,21 +161,26 @@ app.post("/auth/signup", (req, res) => {
 });
 
 // user image 정보 가져오기
-app.get("/api/users/avatar", (reqres) => {
-  var email = req.body.email;
+app.get("/api/users/avatar", (req, res) => {
+  var email = req.query.email;
   connection.query(
     "select image from Users where email = ?",
     [email],
-    function (error, results, fileds) {
+    function (error, results) {
       if (error) throw error;
-      console.log("user image info: ", fileds);
-      res.json(fileds);
+      console.log("user image info: ", results);
+    //   res.json(results);
+    // 결과가 배열 형태로 오는 경우, 첫 번째 항목을 선택
+      var userImage = results.length > 0 ? results[0].image : null;
+
+      // JSON 형식으로 응답을 구성하여 반환
+      res.json({ avatarUrl: userImage });
     }
   );
 });
 
 // 이미지를 저장할 디렉토리
-const uploadDir = path.join(__dirname, "./public/images/users/");
+const uploadDir = path.join(__dirname, "../frontend/dream/assets/images/users/");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
