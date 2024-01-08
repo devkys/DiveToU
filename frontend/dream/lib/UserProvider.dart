@@ -8,6 +8,7 @@ class UserProvider extends InheritedWidget {
   UserProvider({required this.user, required Widget child}) : super(child: child);
 
   // 사용자 정보에 접근하는 정적 메서드
+  // return type: User
   static User of(BuildContext context) {
     final UserProvider? provider = context.dependOnInheritedWidgetOfExactType<UserProvider>();
     if(provider == null) {
@@ -15,7 +16,7 @@ class UserProvider extends InheritedWidget {
     }
     return provider.user;
   }
-  
+
   @override
   bool updateShouldNotify(UserProvider oldWidget) {
     return user != oldWidget.user;
