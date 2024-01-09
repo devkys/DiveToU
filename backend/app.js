@@ -169,8 +169,8 @@ app.get("/api/users/avatar", (req, res) => {
     function (error, results) {
       if (error) throw error;
       console.log("user image info: ", results);
-    //   res.json(results);
-    // 결과가 배열 형태로 오는 경우, 첫 번째 항목을 선택
+      //   res.json(results);
+      // 결과가 배열 형태로 오는 경우, 첫 번째 항목을 선택
       var userImage = results.length > 0 ? results[0].image : null;
 
       // JSON 형식으로 응답을 구성하여 반환
@@ -180,7 +180,10 @@ app.get("/api/users/avatar", (req, res) => {
 });
 
 // 이미지를 저장할 디렉토리
-const uploadDir = path.join(__dirname, "../frontend/dream/assets/images/users/");
+const uploadDir = path.join(
+  __dirname,
+  "../frontend/dream/assets/images/users/"
+);
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -193,16 +196,16 @@ const storage = multer.diskStorage({
     const month = (today.getMonth() + 1).toString().padStart(2, "0"); // 06
     const day = today.getDate().toString().padStart(2, "0"); // 18
 
-    const dateString = year + month + day; 
+    const dateString = year + month + day;
     cb(
       null,
-    //   file.fieldname + "-" + dateString + path.extname(file.originalname)
+      //   file.fieldname + "-" + dateString + path.extname(file.originalname)
       req.query.user_email + path.extname(file.originalname)
     );
   },
 });
 
-const upload = multer({ storage: storage});
+const upload = multer({ storage: storage });
 
 // 사용자 프로필 사진 업데이트
 app.post("/api/user/upd", upload.single("image"), (req, res) => {
@@ -214,10 +217,13 @@ app.post("/api/user/upd", upload.single("image"), (req, res) => {
   if (!req.file) {
     return res.statusCode(400).send("No file uploaded");
   }
-//   var upd_filename = email + "-" + dateString + path.extname(file.originalname);
-  const imagePath = path.join(uploadDir, email + path.extname(req.file.originalname));
+  //   var upd_filename = email + "-" + dateString + path.extname(file.originalname);
+  const imagePath = path.join(
+    uploadDir,
+    email + path.extname(req.file.originalname)
+  );
 
-//   const byteLength = Buffer.from(imagePath, "utf-8").length;
+  //   const byteLength = Buffer.from(imagePath, "utf-8").length;
 
   connection.query(
     "update Users set image= ? where email = ?",
@@ -226,6 +232,26 @@ app.post("/api/user/upd", upload.single("image"), (req, res) => {
       res_code = true;
       if (error) throw error;
       res.status(200).end();
+    }
+  );
+});
+
+// 작성글 노출
+app.get();
+
+// 게시판 작성
+app.post("/api/board/post", (req, res) => {
+  let writer = req.body.writer;
+  let contents = req.body.contents;
+
+  connection.query(
+    "insert into Board (writer, contents) values (?, ?)",
+    [writer, contents],
+    function (error, resulsts) {
+      if (error) throw error;
+      if(resulsts>0) {
+        res.sendStatus(200);
+      }
     }
   );
 });
