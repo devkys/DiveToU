@@ -26,26 +26,19 @@ Future<List<Team>> fetchTeam() async {
   }
 }
 
-Future choose_artists() async {
-  final Uri uri = Uri.parse('http://localhost:3000/artists/choose');
-
-  var res = await http.post(
-    uri,
-    headers: {'Content-type' : 'application/json; charset=UTF-8'},
-    body: jsonEncode({})
-  );
-}
-
 class SelectFandom extends StatefulWidget {
-  const SelectFandom({super.key});
+  // SelectFandom({super.key});
+  late String user_email;
+
+  SelectFandom(this.user_email);
 
   @override
   State<SelectFandom> createState() => _SelectFandomState();
 }
 
-class _SelectFandomState extends State<SelectFandom>
-    with TickerProviderStateMixin {
+class _SelectFandomState extends State<SelectFandom> {
   late Future<List<Team>> futureTeam;
+  late String user_email;
 
   @override
   void initState() {
@@ -53,27 +46,29 @@ class _SelectFandomState extends State<SelectFandom>
     futureTeam = fetchTeam();
   }
 
-  late final AnimationController _controller =
-      AnimationController(duration: const Duration(seconds: 2), vsync: this)
-        ..repeat(reverse: true);
-
-  late final Animation<AlignmentGeometry> _animation = Tween<AlignmentGeometry>(
-    begin: Alignment(-1, -1),
-    end: Alignment.center,
-  ).animate(CurvedAnimation(
-      parent: _controller, curve: Curves.easeInOutCubicEmphasized));
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   // search field controller
   final fieldText = TextEditingController();
 
   void clearText() {
     fieldText.clear();
+  }
+
+  Future choose_artists(String value) async {
+    final Uri uri = Uri.parse('http://localhost:3000/artists/choose');
+
+    try {
+      var res = await http.post(uri,
+        headers: {'Content-type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({'user_email': user_email, 'f_artist': value}));
+        print(res.body.toString());
+        if(res.body.toString() == 'false') {
+          // Navigator.push(context, MaterialPageRoute(builder: (context) => Board()));
+        }
+    }
+    catch(e) {
+      print(e);
+    }
+
   }
 
   Future singer(String singer) async {
@@ -103,6 +98,7 @@ class _SelectFandomState extends State<SelectFandom>
 
   @override
   Widget build(BuildContext context) {
+    user_email = widget.user_email;
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -169,8 +165,10 @@ class _SelectFandomState extends State<SelectFandom>
                                                   child: const Text('Cancel'),
                                                 ),
                                                 TextButton(
-                                                  onPressed: () =>
-                                                     Navigator.push(context, MaterialPageRoute(builder: (context) => Board())),
+                                                  onPressed: () => {
+                                                    choose_artists(
+                                                        list_team[i].team_name)
+                                                  },
                                                   child: const Text('OK'),
                                                 ),
                                               ],
