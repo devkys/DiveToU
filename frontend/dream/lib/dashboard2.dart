@@ -1,9 +1,32 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:dream/User.dart';
 import 'package:dream/UserProvider.dart';
+import 'package:dream/detail.dart';
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
+import 'package:http/http.dart' as http;
+import 'package:dream/BoardContents.dart';
+
+Future<List<BoardContents>> fetchBoard() async {
+  final response =
+      await http.get(Uri.parse('http://localhost:3000/api/board/get/all'));
+  if (response.statusCode == 200) {
+    // final parsed = (jsonDecode(response.body) as List).cast<Map<String, dynamic>>();
+    final parsed =
+        (jsonDecode(response.body) as List).cast<Map<String, dynamic>>();
+
+    print(parsed
+        .map<BoardContents>((json) => BoardContents.fromJson(json))
+        .toList());
+    return parsed
+        .map<BoardContents>((json) => BoardContents.fromJson(json))
+        .toList();
+  } else {
+    throw Exception('Failed to load board list');
+  }
+}
 
 class Board2 extends StatefulWidget {
   final User user;
@@ -17,6 +40,7 @@ class Board2 extends StatefulWidget {
 class _BoardState extends State<Board2> {
   late User s_user;
   late File img;
+  late Future<List<BoardContents>> boardlist;
 
   final GlobalKey<ScaffoldState> _key = new GlobalKey<ScaffoldState>();
 
@@ -24,18 +48,20 @@ class _BoardState extends State<Board2> {
   void initState() {
     super.initState();
     s_user = widget.user;
+    boardlist = fetchBoard();
   }
 
   Future f_color() async {
-    // Uri uri = 
-
+    // Uri uri =
   }
 
   @override
   Widget build(BuildContext context) {
+    
     return WillPopScope(
       onWillPop: () async => false,
       child: DefaultTabController(
+        initialIndex: 0,
         length: 2,
         child: Scaffold(
           key: _key,
@@ -43,6 +69,9 @@ class _BoardState extends State<Board2> {
             preferredSize: Size.fromHeight(100.0),
             child: AppBar(
               title: Text('Dive to you'),
+              notificationPredicate: (ScrollNotification notification) {
+                return notification.depth == 1;
+              },
               automaticallyImplyLeading: false,
               leading: InkWell(
                 child: Container(
@@ -54,10 +83,9 @@ class _BoardState extends State<Board2> {
                             image: AssetImage(s_user.img_url)))),
                 onTap: () => _key.currentState!.openDrawer(),
               ),
-              bottom: TabBar(tabs: <Widget> [
-                Tab(text: "타임라인",iconMargin: EdgeInsets.all(10.0)),
-                Tab(text: "지도",iconMargin: EdgeInsets.all(10.0)),
-      
+              bottom: TabBar(tabs: <Widget>[
+                Tab(text: "타임라인", iconMargin: EdgeInsets.all(10.0)),
+                Tab(text: "지도", iconMargin: EdgeInsets.all(10.0)),
               ]),
             ),
           ),
@@ -100,9 +128,15 @@ class _BoardState extends State<Board2> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text('팔로잉'),
-                          Text('222', style: TextStyle(fontWeight: FontWeight.bold),),
+                          Text(
+                            '222',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           Text('팔로워'),
-                          Text('33', style: TextStyle(fontWeight: FontWeight.bold),),
+                          Text(
+                            '33',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
                     ]),
@@ -131,11 +165,48 @@ class _BoardState extends State<Board2> {
                 onTap: () {},
                 // trailing: Icon(Icons.abc_outlined),
               ),
-      
             ],
           )),
+          body: TabBarView(children: [
+            FutureBuilder<List<BoardContents>>(
+                future: boardlist,
+                builder: (context, snapshot) {
+                  List<BoardContents> list = snapshot.data ?? [];
+                  if (snapshot.hasData) {
+                    return ListView.builder(
+                      itemCount: list.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          leading: CircleAvatar(backgroundImage: AssetImage(s_user.img_url)),
+                          title: Text(list[index].writer),
+                          subtitle: Text(list[index].contents),
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => Detail(contents:list[index])));
+                          },
+                        );
+                      },
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text('${snapshot.error}');
+                  }
+                  return const CircularProgressIndicator();
+                }),
+            ListView.builder(
+              itemCount: 1,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  tileColor: Colors.red,
+                  title: Text('dd'),
+                );
+              },
+            ),
+          ]),
         ),
       ),
     );
   }
+}
+
+Widget bb() {
+  return Column();
 }
