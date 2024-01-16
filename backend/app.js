@@ -236,8 +236,16 @@ app.post("/api/user/upd", upload.single("image"), (req, res) => {
   );
 });
 
-// 작성글 노출
-app.get();
+// 작성글 전체 노출
+app.get("/api/board/get/all", (req, res) => {
+  
+  connection.query("select * from Board join Users on Board.writer=Users.email", function(error, results) {
+    if(error) throw error;
+    res.json(results);
+
+  });
+}
+);
 
 // 게시판 작성
 app.post("/api/board/post", (req, res) => {
