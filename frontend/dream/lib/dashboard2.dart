@@ -1,10 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dream/User.dart';
 import 'package:dream/UserProvider.dart';
+import 'package:dream/addpost.dart';
 import 'package:dream/detail.dart';
+import 'package:dream/upd_myinfo.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:http/http.dart' as http;
 import 'package:dream/BoardContents.dart';
@@ -37,6 +41,14 @@ class Board2 extends StatefulWidget {
   State<Board2> createState() => _BoardState();
 }
 
+// 지도 api 관련
+Future<void> _initialize() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NaverMapSdk.instance.initialize(
+      clientId: 'dhyxg8ixsv',
+      onAuthFailed: (ex) => print("********* 네이버맵 인증오류 : $ex *********"));
+}
+
 class _BoardState extends State<Board2> {
   late User s_user;
   late File img;
@@ -44,9 +56,14 @@ class _BoardState extends State<Board2> {
 
   final GlobalKey<ScaffoldState> _key = new GlobalKey<ScaffoldState>();
 
+  // late NaverMapController _mapController;
+  // final Completer<NaverMapController> mapControllerCompleter = Completer();
+
   @override
   void initState() {
     super.initState();
+    // 네이버 지도 관련 api
+    // _initialize();
     s_user = widget.user;
     boardlist = fetchBoard();
   }
@@ -57,7 +74,6 @@ class _BoardState extends State<Board2> {
 
   @override
   Widget build(BuildContext context) {
-    
     return WillPopScope(
       onWillPop: () async => false,
       child: DefaultTabController(
@@ -104,12 +120,20 @@ class _BoardState extends State<Board2> {
                   child: Container(
                     margin: EdgeInsets.fromLTRB(0, 0, 0, 50.0),
                     child: Column(children: [
-                      GFDrawerHeaderPictures(
-                        centerAlign: true,
-                        closeButton:
-                            Visibility(child: this.widget, visible: false),
-                        currentAccountPicture: GFAvatar(
-                          backgroundImage: AssetImage(s_user.img_url),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyInfo()));
+                        },
+                        child: GFDrawerHeaderPictures(
+                          centerAlign: true,
+                          closeButton:
+                              Visibility(child: this.widget, visible: false),
+                          currentAccountPicture: GFAvatar(
+                            backgroundImage: AssetImage(s_user.img_url),
+                          ),
                         ),
                       ),
                       SizedBox(height: 25.0),
@@ -177,11 +201,17 @@ class _BoardState extends State<Board2> {
                       itemCount: list.length,
                       itemBuilder: (context, index) {
                         return ListTile(
-                          leading: CircleAvatar(backgroundImage: AssetImage(s_user.img_url)),
+                          leading: CircleAvatar(
+                              backgroundImage:
+                                  AssetImage(list[index].img_url!)),
                           title: Text(list[index].writer),
                           subtitle: Text(list[index].contents),
                           onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => Detail(contents:list[index])));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        Detail(contents: list[index])));
                           },
                         );
                       },
@@ -191,16 +221,37 @@ class _BoardState extends State<Board2> {
                   }
                   return const CircularProgressIndicator();
                 }),
-            ListView.builder(
-              itemCount: 1,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  tileColor: Colors.red,
-                  title: Text('dd'),
-                );
-              },
-            ),
+            Center(
+              child: Text('dd'),
+            )
+            // Center(
+            //     child:
+            //       NaverMap(
+            //         options: NaverMapViewOptions(),
+            //         onMapReady: (controller) => {
+            //           _mapController = controller,
+            //           print('map loading@@')
+            //         },
+            //       )
+
+            // )
+            // ListView.builder(
+            //   itemCount: 1,
+            //   itemBuilder: (context, index) {
+            //     return ListTile(
+            //       tileColor: Colors.red,
+            //       title: Text('dd'),
+
+            //     );
+            //   },
+            // ),
           ]),
+          floatingActionButton: FloatingActionButton(onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> AddPost()));
+          },
+          child: const Icon(Icons.add),
+          
+          ),
         ),
       ),
     );
