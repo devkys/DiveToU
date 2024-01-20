@@ -71,6 +71,7 @@ class _BoardState extends State<Board2> {
   Future f_color() async {
     // Uri uri =
   }
+  int currentPageIndex=0;
 
   @override
   Widget build(BuildContext context) {
@@ -100,8 +101,8 @@ class _BoardState extends State<Board2> {
                 onTap: () => _key.currentState!.openDrawer(),
               ),
               bottom: TabBar(tabs: <Widget>[
-                Tab(text: "타임라인", iconMargin: EdgeInsets.all(10.0)),
-                Tab(text: "지도", iconMargin: EdgeInsets.all(10.0)),
+                Tab(text: "모두", iconMargin: EdgeInsets.all(10.0)),
+                Tab(text: "팔로잉", iconMargin: EdgeInsets.all(10.0)),
               ]),
             ),
           ),
@@ -191,7 +192,9 @@ class _BoardState extends State<Board2> {
               ),
             ],
           )),
-          body: TabBarView(children: [
+          body:
+          
+          TabBarView(children: [
             FutureBuilder<List<BoardContents>>(
                 future: boardlist,
                 builder: (context, snapshot) {
@@ -252,6 +255,7 @@ class _BoardState extends State<Board2> {
           child: const Icon(Icons.add),
           
           ),
+         
         ),
       ),
     );
