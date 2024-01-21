@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:dream/LoginDTO.dart';
+import 'package:dream/User.dart';
+import 'package:dream/UserProvider.dart';
 import 'package:dream/dashboard.dart';
+import 'package:dream/main.dart';
 import 'package:dream/register.dart';
-import 'package:dream/upd_myinfo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -17,12 +19,17 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
-
   static final storage = new FlutterSecureStorage();
+  late String userInfo = "";
 
   LoginDTO loginDTO = LoginDTO("", "");
 
-  Uri uri = Uri.parse("http://localhost:3000/auth/signin");
+  Uri uri = Uri.parse("http://192.168.0.11:3000/auth/signin");
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Future login() async {
     try {
@@ -30,11 +37,33 @@ class _LoginState extends State<Login> {
           headers: {'Content-Type': 'application/json; charset=UTF-8'},
           body: jsonEncode({'email': loginDTO.email, 'password': loginDTO.pw}));
 
-      if (res.body.toString() == 'true') {
-        await storage.write(key: "user_info", value: loginDTO.email);
+      if (res.statusCode == 200) {
+        String r_email = json.decode(res.body)['email'];
+        String r_username = json.decode(res.body)['username'];
+        String r_image = json.decode(res.body)['image'];
+        int r_secret = json.decode(res.body)['secret'];
+
+        User s_user = User(
+            email: r_email,
+            name: r_username,
+            img_url: r_image,
+            secret: r_secret);
+
+        String jsonString = jsonEncode(s_user);
+        await storage.write(key: 'login', value: jsonString);
+
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //         builder: (context) =>
+        //             UserProvider(user: s_user, child: Board())));
+
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => MyInfo()));
-        print("res: " + res.body);
+            context,
+            MaterialPageRoute(
+                builder: (_) => Board(
+                      user: s_user,
+                    )));
       } else {
         Fluttertoast.showToast(
             msg: '일치하는 회원이 없습니다.',
